@@ -11,7 +11,7 @@ class RubyEncodingWrapper
   def initialize(user_id=nil, user_key=nil)
     @user_id = user_id
     @user_key = user_key
-    @url = 'manage.encoding.com'
+    @url = 'http://manage.encoding.com/'
 
   end
 
@@ -37,7 +37,11 @@ class RubyEncodingWrapper
 
   private
     def request_send(xml)
-      http = Net::HTTP.new(@url)
-      response = http.post(@url, "xml=#{xml}")
+      url = URI.parse(@url)
+      request = Net::HTTP::Post.new(url.path)
+      request.form_data = { :xml => xml }
+      response = Net::HTTP.new(url.host, url.port).start { |http|
+        http.request(request)
+      }
     end
 end
