@@ -1,28 +1,34 @@
 require 'rubygems'
 require 'uri'
 require 'net/http'
+require 'rexml/document'
 require 'builder'
 
+
 class RubyEncodingWrapper
+  attr_reader :user_id, :user_key, :url
   
-  def initialize(user_id=nil,user_key=nil)
-    self.userid = user_id
-    self.userkey = user_key
-    self.url = 'manage.encoding.com:80'
+  def initialize(user_id=nil, user_key=nil)
+    @user_id = user_id
+    @user_key = user_key
+    @url = 'http://manage.encoding.com:80'
+
   end
 
-  def request_encoding(action,source,format={})
-    #xml generation
-    xml.instruct! :xml, :version => "1.1", :encoding => "UTF-8"
-    xml.userid 'id'
-    xml.userkey 'key'
-    xml.action 'AddMedia'
-    xml.source @video
-    xml.format do
-      
+  def request_encoding(action=nil, source=nil, format={})
+    #{ :size, :bitrate, :audio_bitrate, :audio_sample_rate, :audio_channels_number, :framerate, :two_pass, :cbr, :deinterlacing, :destination, :add_meta
+
+    builder = Builder::XmlMarkup.new(:target=>STDOUT, :indent=>2)
+    builder.query do |q|
+      q.userid(@user_id);
+      q.userid @user_id
+      q.userkey @user_key
+      q.action action
+      q.source source
+      q.format format
     end
 
-   
+
     request_send(xml)
   end
 
