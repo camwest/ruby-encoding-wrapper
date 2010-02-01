@@ -7,6 +7,7 @@ require 'rexml/document'
 module EncodingActions
   ADD_MEDIA = "AddMedia"
   GET_STATUS = "GetStatus"
+  CANCEL_MEDIA = "CancelMedia"
 end
 
 module EncodingStatusType
@@ -70,6 +71,21 @@ class RubyEncodingWrapper
       :message => root.elements["status"][0].to_s, 
       :time_left => root.elements["time_left"][0].to_s.to_i
     }
+  end
+
+  def cancel_media(media_id)
+    xml = Builder::XmlMarkup.new :indent => 2
+    xml.instruct!
+    xml.query do |q|
+      q.userid    @user_id
+      q.userkey   @user_key
+      q.action    EncodingActions::CANCEL_MEDIA
+      q.mediaid   media_id
+    end
+
+    response = request_send(xml.target!)
+
+    RAILS_DEFAULT_LOGGER.info(response.body)
   end
 
 
