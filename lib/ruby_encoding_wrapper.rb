@@ -69,7 +69,7 @@ class RubyEncodingWrapper
 
     status = { 
       :message => root.elements["status"][0].to_s, 
-      :time_left => root.elements["time_left"][0].to_s.to_i
+      :progress => root.elements["progress"][0].to_s
     }
   end
 
