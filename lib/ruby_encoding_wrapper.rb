@@ -67,9 +67,18 @@ class RubyEncodingWrapper
     document = REXML::Document.new(response.body)
     root = document.root
 
+    status = root.elements["status"][0].to_s
+    progress = root.elements["progress"][0].to_s.to_i
+
+    # there is a bug where the progress reports
+    # as 100% if the status is 'Waiting for encoder'
+    if (status == EncodingStatusType::WAITING)
+      progress = 0
+    end
+
     status = { 
-      :message => root.elements["status"][0].to_s, 
-      :progress => root.elements["progress"][0].to_s
+      :message => status,
+      :progress => progress
     }
   end
 
