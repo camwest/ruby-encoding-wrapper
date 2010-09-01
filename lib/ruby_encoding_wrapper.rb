@@ -94,7 +94,7 @@ class RubyEncodingWrapper
 
     response = request_send(xml.target!)
 
-    RAILS_DEFAULT_LOGGER.info(response.body)
+    ::Rails.logger.info(response.body)
   end
 
 
