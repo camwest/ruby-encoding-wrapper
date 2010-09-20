@@ -26,7 +26,6 @@ class RubyEncodingWrapper
     @user_id = user_id
     @user_key = user_key
     @url = 'http://manage.encoding.com/'
-
   end
 
   def request_encoding(action=nil, source=nil, notify_url=nil)
@@ -94,7 +93,7 @@ class RubyEncodingWrapper
 
     response = request_send(xml.target!)
 
-    ::Rails.logger.info(response.body)
+    logger.info(response.body)
   end
 
 
@@ -108,5 +107,9 @@ class RubyEncodingWrapper
         http.request(request)
       }
     end
-
+    
+    def logger
+      ActiveRecord::Base.logger
+    end
+    
 end
