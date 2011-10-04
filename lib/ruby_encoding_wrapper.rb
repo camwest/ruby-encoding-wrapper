@@ -41,9 +41,8 @@ class RubyEncodingWrapper
       q.action  action
       q.source  source
       q.notify  notify_url
-      q.format { |f|
-        yield f
-      }
+
+      yield q
     end
 
     response = request_send(xml.target!)
