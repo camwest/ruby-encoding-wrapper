@@ -20,7 +20,7 @@ module EncodingStatusType
 end
 
 class RubyEncodingWrapper
-  attr_reader :user_id, :user_key, :url
+  attr_reader :user_id, :user_key, :url, :last_error
 
   def initialize(user_id=nil, user_key=nil)
     @user_id = user_id
@@ -46,6 +46,10 @@ class RubyEncodingWrapper
     end
 
     response = request_send(xml.target!)
+    if response.code =~ /4\d\d/
+      @last_error = response.message
+      return nil
+    end
     document = REXML::Document.new(response.body)
     document.root.elements["MediaID"][0].to_s.to_i
   end
@@ -102,7 +106,7 @@ class RubyEncodingWrapper
       request = Net::HTTP::Post.new(url.path)
       request.form_data = { :xml => xml }
 
-      response = Net::HTTP.new(url.host, url.port).start { |http|
+      Net::HTTP.new(url.host, url.port).start { |http|
         http.request(request)
       }
     end
