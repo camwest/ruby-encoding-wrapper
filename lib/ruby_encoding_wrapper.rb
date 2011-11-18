@@ -19,6 +19,10 @@ module EncodingStatusType
   ERROR = "Error"
 end
 
+module RequestResponse
+  ERROR = nil
+end
+
 class RubyEncodingWrapper
   attr_reader :user_id, :user_key, :url, :last_error
 
@@ -46,10 +50,9 @@ class RubyEncodingWrapper
     end
 
     response = request_send(xml.target!)
-    if response.code =~ /(4|5)\d+/
-      @last_error = response.message
-      return nil
-    end
+
+    return RequestResponse::ERROR if request_error?(response)
+
     document = REXML::Document.new(response.body)
     document.root.elements["MediaID"][0].to_s.to_i
   end
@@ -65,10 +68,7 @@ class RubyEncodingWrapper
     end
 
     response = request_send(xml.target!)
-    if response.code =~ /(4|5)\d+/
-      @last_error = response.message
-      return nil
-    end
+    return RequestResponse::ERROR if request_error?(response)
 
     document = REXML::Document.new(response.body)
     root = document.root
@@ -99,24 +99,34 @@ class RubyEncodingWrapper
     end
 
     response = request_send(xml.target!)
-
-    logger.info(response.body)
+    return RequestResponse::ERROR if request_error?(response)
+    
   end
 
 
   private
-    def request_send(xml)
-      url = URI.parse(@url)
-      request = Net::HTTP::Post.new(url.path)
-      request.form_data = { :xml => xml }
 
-      Net::HTTP.new(url.host, url.port).start { |http|
-        http.request(request)
-      }
+  def request_error?(response)
+    if response.code =~ /(4|5)\d+/
+      @last_error = response.message
+      true
+    else
+      false
     end
     
     def logger
       ActiveRecord::Base.logger
     end
+  end
+
+  def request_send(xml)
+    url = URI.parse(@url)
+    request = Net::HTTP::Post.new(url.path)
+    request.form_data = { :xml => xml }
+
+    Net::HTTP.new(url.host, url.port).start { |http|
+      http.request(request)
+    }
+  end
     
 end
