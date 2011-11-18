@@ -46,7 +46,7 @@ class RubyEncodingWrapper
     end
 
     response = request_send(xml.target!)
-    if response.code =~ /4\d\d/
+    if response.code =~ /(4|5)\d+/
       @last_error = response.message
       return nil
     end
