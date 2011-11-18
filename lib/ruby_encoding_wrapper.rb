@@ -65,6 +65,10 @@ class RubyEncodingWrapper
     end
 
     response = request_send(xml.target!)
+    if response.code =~ /(4|5)\d+/
+      @last_error = response.message
+      return nil
+    end
 
     document = REXML::Document.new(response.body)
     root = document.root
