@@ -1,6 +1,4 @@
 require 'spec_helper'
-require 'fakeweb'
-require 'ruby_encoding_wrapper'
 
 describe RubyEncodingWrapper do
 
