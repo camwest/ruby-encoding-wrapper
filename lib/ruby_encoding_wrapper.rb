@@ -33,17 +33,17 @@ class RubyEncodingWrapper
     @url = 'http://manage.encoding.com/'
   end
 
-  def request_encoding(action=nil, source=nil, notify_url=nil)
+  def request_encoding(source=nil, notify_url=nil)
     #{ :size, :bitrate, :audio_bitrate, :audio_sample_rate,
     #:audio_channels_number, :framerate, :two_pass, :cbr,
     #:deinterlacing, :destination, :add_meta
-
+    
     xml = Builder::XmlMarkup.new :indent=>2
     xml.instruct! 
     xml.query do |q|
       q.userid  @user_id
       q.userkey @user_key
-      q.action  action
+      q.action  EncodingActions::ADD_MEDIA
       q.source  source
       q.notify  notify_url
 
