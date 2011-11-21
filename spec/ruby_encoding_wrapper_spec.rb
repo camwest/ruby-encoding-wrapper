@@ -1,5 +1,9 @@
 require 'spec_helper'
 
+def fake_error(message)
+  FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => "<?xml version=\"1.0\"?><response><errors><error>#{message}</error></errors></response>")
+end
+
 describe RubyEncodingWrapper do
 
   before do
@@ -11,14 +15,14 @@ describe RubyEncodingWrapper do
 
     describe "invalid user id or key" do
       before do
-        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => '<?xml version="1.0"?><response><errors><error>Wrong user id or key!</error></errors></response>')
+        fake_error(ErrorMessage::AUTHENTICATION)
         @result = @sut.request_encoding {|query|}
       end
       it 'should be nil' do
         @result.should be_nil
       end
       it 'should have "Wrong user id or key" as an error' do
-        @sut.last_error.should =~ /Wrong user id or key/
+        @sut.last_error.should =~ /#{ErrorMessage::AUTHENTICATION}/
       end
     end
 
@@ -56,18 +60,18 @@ describe RubyEncodingWrapper do
 
     describe "no specified format(s)" do
       before do
-        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => '<?xml version="1.0"?><response><errors><error>No formats specified!</error></errors></response>')
+        fake_error(ErrorMessage::NO_FORMATS)
         @result = @sut.request_encoding {|query|}
       end
 
       it "should have 'No formats specified' as an error" do
-        @sut.last_error.should =~ /No formats specified/
+        @sut.last_error.should =~ /#{ErrorMessage::NO_FORMATS}/
       end
     end
 
     describe "no source specified" do
       before do
-        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => '<?xml version="1.0"?><response><errors><error>Source file is not indicated!</error></errors></response>')
+        fake_error(ErrorMessage::NO_SOURCE)
         @result = @sut.request_encoding do |query|
           query.format do |f|
             f.output('iphone')
@@ -76,7 +80,7 @@ describe RubyEncodingWrapper do
       end
 
       it 'should have "Source file is not indicated" as an error' do
-        @sut.last_error.should =~ /Source file is not indicated/ 
+        @sut.last_error.should =~ /#{ErrorMessage::NO_SOURCE}/
       end
 
     end
@@ -98,7 +102,7 @@ describe RubyEncodingWrapper do
   describe "#request_status" do
     describe "invalid user id or key" do
       before do
-        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => '<?xml version="1.0"?><response><errors><error>Wrong user id or key!</error></errors></response>')
+        fake_error("Wrong user id or key!")
         @result = @sut.request_status(1234)
       end
       it 'should be nil' do
@@ -177,14 +181,14 @@ describe RubyEncodingWrapper do
 
     describe "invalid user id or key" do
       before do
-        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => '<?xml version="1.0"?><response><errors><error>Wrong user id or key!</error></errors></response>')
+        fake_error(ErrorMessage::AUTHENTICATION)
         @result = @sut.cancel_media(1234)
       end
       it 'should be nil' do
         @result.should be_nil
       end
       it 'should have "Wrong user id or key" as an error' do
-        @sut.last_error.should =~ /Wrong user id or key/
+        @sut.last_error.should =~ /#{ErrorMessage::AUTHENTICATION}/
       end
     end
 

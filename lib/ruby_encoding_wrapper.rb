@@ -19,6 +19,12 @@ module EncodingStatusType
   ERROR = "Error"
 end
 
+module ErrorMessage
+  AUTHENTICATION = "Wrong user id or key!"
+  NO_FORMATS = "No formats specified!"
+  NO_SOURCE = "Source file is not indicated!"
+end
+
 module RequestResponse
   ERROR = nil
 end
