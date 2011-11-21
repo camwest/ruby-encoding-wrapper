@@ -3,6 +3,7 @@ require 'uri'
 require 'net/http'
 require 'builder'
 require 'rexml/document'
+require 'nokogiri'
 
 module EncodingActions
   ADD_MEDIA = "AddMedia"
@@ -50,10 +51,11 @@ class RubyEncodingWrapper
     end
 
     response = request_send(xml.target!)
-
     return RequestResponse::ERROR if request_error?(response)
 
-    document = REXML::Document.new(response.body)
+    document = Nokogiri::XML(response.body)
+    return RequestResponse::ERROR if api_error?(document)
+
     document.root.elements["MediaID"][0].to_s.to_i
   end
 
@@ -113,9 +115,15 @@ class RubyEncodingWrapper
     else
       false
     end
-    
-    def logger
-      ActiveRecord::Base.logger
+  end
+
+  def api_error?(document)
+    # document.root.elements["MediaID"][0].to_s.to_i
+
+    if document.css('errors error').length > 0
+      true
+    else
+      false
     end
   end
 

@@ -10,6 +10,16 @@ describe RubyEncodingWrapper do
   end
 
   describe "#request_encoding" do
+
+    describe "invalid user id or key" do
+      before do
+        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => '<?xml version="1.0"?><response><errors><error>Wrong user id or key!</error></errors></response>')
+        @result = @sut.request_encoding {|query|}
+      end
+      it 'should be nil' do
+        @result.should be_nil
+      end
+    end
     describe "the server returns a 404 error code" do
       before do
         FakeWeb.register_uri(:post, "http://manage.encoding.com/", :body => '', :status => ['404', 'Not Found'])
