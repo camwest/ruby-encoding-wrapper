@@ -72,7 +72,9 @@ class RubyEncodingWrapper
     response = request_send(xml.target!)
     return RequestResponse::ERROR if request_error?(response)
 
-    document = REXML::Document.new(response.body)
+    document = Nokogiri::XML(response.body)
+    return RequestResponse::ERROR if api_error?(document)
+
     root = document.root
 
     status = root.elements["status"][0].to_s
@@ -120,7 +122,6 @@ class RubyEncodingWrapper
   def api_error?(document)
 
     if document.css('errors error').length > 0
-      # @last_error = document.root.elements['errors'][0].to_s
       @last_error = document.css('errors error').text
       true
     else
