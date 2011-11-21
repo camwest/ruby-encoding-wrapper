@@ -118,9 +118,10 @@ class RubyEncodingWrapper
   end
 
   def api_error?(document)
-    # document.root.elements["MediaID"][0].to_s.to_i
 
     if document.css('errors error').length > 0
+      # @last_error = document.root.elements['errors'][0].to_s
+      @last_error = document.css('errors error').text
       true
     else
       false

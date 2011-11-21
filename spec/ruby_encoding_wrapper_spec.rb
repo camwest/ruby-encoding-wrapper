@@ -17,6 +17,9 @@ describe RubyEncodingWrapper do
       it 'should be nil' do
         @result.should be_nil
       end
+      it 'should have "Wrong user id or key" as an error' do
+        @sut.last_error.should =~ /Wrong user id or key/
+      end
     end
     describe "the server returns a 404 error code" do
       before do
