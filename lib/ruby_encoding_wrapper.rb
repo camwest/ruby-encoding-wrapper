@@ -104,7 +104,12 @@ class RubyEncodingWrapper
 
     response = request_send(xml.target!)
     return RequestResponse::ERROR if request_error?(response)
+
+    document = Nokogiri::XML(response.body)
+    return RequestResponse::ERROR if api_error?(document)
     
+    true
+
   end
 
 

@@ -21,6 +21,7 @@ describe RubyEncodingWrapper do
         @sut.last_error.should =~ /Wrong user id or key/
       end
     end
+
     describe "the server returns a 404 error code" do
       before do
         FakeWeb.register_uri(:post, "http://manage.encoding.com/", :body => '', :status => ['404', 'Not Found'])
@@ -105,6 +106,20 @@ describe RubyEncodingWrapper do
   end
   
   describe "#cancel_media" do
+
+    describe "invalid user id or key" do
+      before do
+        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => '<?xml version="1.0"?><response><errors><error>Wrong user id or key!</error></errors></response>')
+        @result = @sut.cancel_media(1234)
+      end
+      it 'should be nil' do
+        @result.should be_nil
+      end
+      it 'should have "Wrong user id or key" as an error' do
+        @sut.last_error.should =~ /Wrong user id or key/
+      end
+    end
+
     describe "the server returns a 404 error code" do
       before do
         FakeWeb.register_uri(:post, "http://manage.encoding.com/", :body => '', :status => ['404', 'Not Found'])
