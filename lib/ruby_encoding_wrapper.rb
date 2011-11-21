@@ -56,7 +56,7 @@ class RubyEncodingWrapper
     document = Nokogiri::XML(response.body)
     return RequestResponse::ERROR if api_error?(document)
 
-    document.root.elements["MediaID"][0].to_s.to_i
+    document.css("MediaID").text.to_i
   end
 
   def request_status(media_id)
@@ -126,6 +126,7 @@ class RubyEncodingWrapper
 
   def api_error?(document)
 
+    # puts document.inspect
     if document.css('errors error').length > 0
       @last_error = document.css('errors error').text
       true

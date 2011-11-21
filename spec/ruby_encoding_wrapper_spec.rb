@@ -9,7 +9,7 @@ describe RubyEncodingWrapper do
   end
 
   before(:all) do
-    FakeWeb.allow_net_connect = false
+    FakeWeb.allow_net_connect = true
   end
 
   before do
@@ -82,7 +82,32 @@ describe RubyEncodingWrapper do
         end
       end
 
-      describe
+      describe "no source specified" do
+        before do
+          FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => '<?xml version="1.0"?><response><errors><error>Source file is not indicated!</error></errors></response>')
+          @result = @sut.request_encoding do |query|
+            query.format do |f|
+              f.output('iphone')
+            end
+          end
+        end
+
+        it 'should have "Source file is not indicated" as an error' do
+          @sut.last_error.should =~ /Source file is not indicated/ 
+        end
+
+      end
+
+      describe "valid encoding request" do
+        before do
+          @media_id = 1234
+          FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => "<?xml version=\"1.0\"?><response><message>Added</message><MediaID>#{@media_id}</MediaID></response>")
+          @result = @sut.request_encoding { |query| }
+        end
+        it 'should return a MediaID' do
+          @result.should == @media_id
+        end
+      end
 
     end
 
