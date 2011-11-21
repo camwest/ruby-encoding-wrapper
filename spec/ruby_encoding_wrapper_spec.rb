@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe RubyEncodingWrapper do
 
-  before do
+  before(:each) do
     @sut = RubyEncodingWrapper.new
     FakeWeb.allow_net_connect = false
   end
