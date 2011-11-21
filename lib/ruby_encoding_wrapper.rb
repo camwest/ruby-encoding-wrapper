@@ -2,7 +2,6 @@ require 'rubygems'
 require 'uri'
 require 'net/http'
 require 'builder'
-require 'rexml/document'
 require 'nokogiri'
 
 module EncodingActions
