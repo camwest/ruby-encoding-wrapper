@@ -2,10 +2,6 @@ require 'spec_helper'
 
 describe RubyEncodingWrapper do
 
-  before(:all) do
-    FakeWeb.allow_net_connect = false
-  end
-
   before do
     FakeWeb.clean_registry
     @sut = RubyEncodingWrapper.new
@@ -145,6 +141,36 @@ describe RubyEncodingWrapper do
 
     end
 
+    describe "valid status request" do
+      before do
+        @media_id = 1234
+        @progress = 10
+        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => "<?xml version=\"1.0\"?><response><id>#{@media_id}</id><status>#{EncodingStatusType::PROCESSING}</status><progress>#{@progress}</progress></response>")
+        @result = @sut.request_status(@media_id)
+      end
+
+      it 'should return "Processing"' do
+        @result[ :message ].should =~ /#{EncodingStatusType::PROCESSING}/
+      end
+
+      it 'should return 10% progress' do
+        @result[ :progress ].should == @progress
+      end
+      
+    end
+
+    describe "waiting for encoder" do
+      before do
+        @media_id = 1234
+        @progress = 100
+        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => "<?xml version=\"1.0\"?><response><id>#{@media_id}</id><status>#{EncodingStatusType::WAITING}</status><progress>#{@progress}</progress></response>")
+        @result = @sut.request_status(@media_id)
+      end
+      it 'should have 0% progress' do
+        @result[ :progress ].should be 0
+      end
+    end
+
   end
 
   describe "#cancel_media" do
@@ -192,6 +218,18 @@ describe RubyEncodingWrapper do
         @sut.last_error.should == 'Server Error'
       end
 
+    end
+
+    describe "valid cancel request" do
+      before do
+        @media_id = 1234
+        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => "<?xml version=\"1.0\"?><response><message>Deleted</message></response></response>")
+        @result = @sut.cancel_media(@media_id)
+      end
+      it 'should return truthy' do
+
+        @result.should be true
+      end
     end
 
   end
