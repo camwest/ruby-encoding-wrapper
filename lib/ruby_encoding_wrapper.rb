@@ -80,15 +80,15 @@ class RubyEncodingWrapper
     document = Nokogiri::XML(response.body)
     return RequestResponse::ERROR if api_error?(document)
 
-    status = document.css("status").text
+    status   = document.css("response > status").text
     progress = document.css("progress").text.to_i
-
+    
     # there is a bug where the progress reports
     # as 100% if the status is 'Waiting for encoder'
     if (status == EncodingStatusType::WAITING)
       progress = 0
     end
-
+    
     status = { 
       :message => status,
       :progress => progress
