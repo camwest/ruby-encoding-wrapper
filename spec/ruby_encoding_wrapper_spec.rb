@@ -153,8 +153,8 @@ describe RubyEncodingWrapper do
         @result = @sut.request_status(@media_id)
       end
 
-      it 'should return "Processing"' do
-        @result[ :message ].should =~ /#{EncodingStatusType::PROCESSING}/
+      it 'should return exactly "Processing"' do
+        @result[ :message ].should == EncodingStatusType::PROCESSING
       end
 
       it 'should return 10% progress' do
@@ -172,6 +172,19 @@ describe RubyEncodingWrapper do
       end
       it 'should have 0% progress' do
         @result[ :progress ].should be 0
+      end
+    end
+    
+    describe "finished encoding with multiple formats" do
+      before do
+        @media_id = 1234
+        @progress = 100
+        FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => "<?xml version=\"1.0\"?><response><id>#{@media_id}</id><status>#{EncodingStatusType::FINISHED}</status><progress>#{@progress}</progress><format><status>#{EncodingStatusType::FINISHED}</status></format><format><status>#{EncodingStatusType::FINISHED}</status></format></response>")
+        @result = @sut.request_status(@media_id)
+      end
+      
+      it "should have a status of exactly Finished" do
+        @result[ :message ].should == EncodingStatusType::FINISHED
       end
     end
 
@@ -230,8 +243,8 @@ describe RubyEncodingWrapper do
         FakeWeb.register_uri(:post, 'http://manage.encoding.com/', :body => "<?xml version=\"1.0\"?><response><message>Deleted</message></response></response>")
         @result = @sut.cancel_media(@media_id)
       end
+      
       it 'should return truthy' do
-
         @result.should be true
       end
     end
